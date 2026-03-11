@@ -11,6 +11,7 @@ import SwiftUI
 struct Project3App: App {
     var body: some Scene {
         WindowGroup {
+            // Changes this instead of ContentView() because the main page is MainTabView()
             MainTabView()
         }
     }

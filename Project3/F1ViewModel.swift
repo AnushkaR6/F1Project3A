@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import Combine
 
-@MainActor // Ensures UI updates always happen on the main thread
+@MainActor // Ensures UI updates always happen on the main section
 class F1ViewModel: ObservableObject {
     @Published private(set) var allDrivers: [Driver] = []
     @Published var drivers: [Driver] = []
@@ -20,7 +20,7 @@ class F1ViewModel: ObservableObject {
     func loadDrivers() async {
         isLoading = true
         defer { isLoading = false } // Runs when the function finishes
-        
+        // creating backup UI incase error occurs or info doesn't load
         do {
             let fetchedDrivers = try await service.fetchDrivers()
             self.allDrivers = fetchedDrivers
@@ -39,16 +39,22 @@ class F1ViewModel: ObservableObject {
         drivers.contains(where: { $0.id == driver.id })
     }
 
+    // add and remove feature to change list of drivers in content view
+    // similiar to the P2 requirement we had earlier
     func addDriver(_ driver: Driver) {
         guard !drivers.contains(where: { $0.id == driver.id }) else { return }
         drivers.append(driver)
     }
-
+    // lets you remove drivers from the collection
+    // they are still kept in the list (just greyed out) and can be added back by the user
     func removeDrivers(at offsets: IndexSet) {
         drivers.remove(atOffsets: offsets)
     }
 }
 
+// Initial sample data I chose just to test the game features
+// and seeing how it would play before figuring out how to randomize it
+// from the main API data instead of manually breaking all the drivers' info down
 extension F1ViewModel {
     static var preview: F1ViewModel {
         let vm = F1ViewModel()

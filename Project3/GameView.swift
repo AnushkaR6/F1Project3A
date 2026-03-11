@@ -10,15 +10,17 @@ import AVFoundation
 import Combine
 
 struct GameView: View {
-    @ObservedObject var f1VM: F1ViewModel // We pass the data in here
+    @ObservedObject var f1VM: F1ViewModel // To pass data
     @StateObject private var gameVM = GameViewModel()
     @StateObject private var audioPlayer = GameAudioPlayer()
     
 
     var body: some View {
+            // vertically stacking the questions and answers
             VStack(spacing: 25) {
                 headerSection
-                
+                // Question types and setting up pair so that question
+                // matches correct answer
                 if let driver = gameVM.currentQuestion {
                     // DYNAMIC QUESTION AREA
                     VStack(spacing: 20) {
@@ -31,7 +33,7 @@ struct GameView: View {
                     }
                     .frame(height: 250)
 
-                    // CHOICES
+                    // Buttons to show choices for answer
                     VStack(spacing: 12) {
                         ForEach(gameVM.choices) { choice in
                             Button(action: { gameVM.checkAnswer(choice, allDrivers: f1VM.drivers) }) {
@@ -52,6 +54,7 @@ struct GameView: View {
                 }
                 Spacer()
             }
+            // automatically cancel data if not needed/ present
             .task {
                 if !f1VM.drivers.isEmpty && gameVM.currentQuestion == nil {
                     gameVM.setupNewQuestion(allDrivers: f1VM.drivers)
@@ -75,7 +78,7 @@ struct GameView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 20))
 
             case .identifyByColor:
-                // Just the team colors
+                // For team colors
                 Circle()
                     .fill(Color(hex: driver.team_colour))
                     .frame(width: 120, height: 120)
@@ -83,6 +86,7 @@ struct GameView: View {
             }
         }
 
+        // Creating a label for the game view on screen
         var headerSection: some View {
             HStack {
                 VStack(alignment: .leading) {
@@ -90,6 +94,7 @@ struct GameView: View {
                     Text("Score: \(gameVM.score)").font(.title.bold())
                 }
                 Spacer()
+                // Adding more standard trivia features like skip
                 Button("Skip") { gameVM.setupNewQuestion(allDrivers: f1VM.drivers) }
                     .buttonStyle(.bordered)
             }
@@ -98,6 +103,7 @@ struct GameView: View {
 }
 
 @MainActor
+// adding F1 Audio for media interactivity when game is being played
 private final class GameAudioPlayer: ObservableObject {
     private var player: AVAudioPlayer?
 
@@ -106,7 +112,6 @@ private final class GameAudioPlayer: ObservableObject {
             player?.play()
             return
         }
-
         let fileName = "F1Audio"
         let fileExtension = "mp3"
 
@@ -118,7 +123,8 @@ private final class GameAudioPlayer: ObservableObject {
             let session = AVAudioSession.sharedInstance()
             try session.setCategory(.ambient, mode: .default, options: [.mixWithOthers])
             try session.setActive(true, options: [])
-
+            // Vibe coded parts of the audio code so I'm still going
+            // through it to fully understand the purpose of each line
             let newPlayer = try AVAudioPlayer(contentsOf: url)
             newPlayer.numberOfLoops = -1
             newPlayer.prepareToPlay()
@@ -128,7 +134,8 @@ private final class GameAudioPlayer: ObservableObject {
             return
         }
     }
-
+    // Ensures that the audio is only playing when intended during the game
+    // and shut off completely when outside of the game view
     func stop() {
         player?.stop()
         player = nil

@@ -5,6 +5,7 @@
 //  Created by Anushka R on 3/7/26.
 //
 
+// This view is just for the starting page but the actual "main view" is the MainTabView
 import SwiftUI
 
 struct ContentView: View {

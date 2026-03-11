@@ -12,27 +12,27 @@ enum NetworkError: Error {
     case noData
 }
 
+// creating a mutable format to be reused for esch driver
 actor F1Service {
     private let baseURL = "https://api.openf1.org/v1/drivers"
 
     /// Fetches drivers for a specific session using async/await
     func fetchDrivers(sessionKey: Int = 9161) async throws -> [Driver] {
-        // 1. Construct URL
+        // Creating URL
         guard let url = URL(string: "\(baseURL)?session_key=\(sessionKey)") else {
             throw NetworkError.invalidURL
         }
 
-        // 2. Perform Network Request (Concurrency)
-        // 'await' tells the app to pause this function until the data arrives
-        // without freezing the UI.
+        // Concurrency/ network request
+        // waiting for data to come before moving forward or gettng stuck on load page
         let (data, response) = try await URLSession.shared.data(from: url)
 
-        // 3. Validate Response
+        // Validating response
         guard (response as? HTTPURLResponse)?.statusCode == 200 else {
             throw NetworkError.noData
         }
 
-        // 4. Decode JSON
+        // Decoding the response/ data into format that SWift can read
         let decoder = JSONDecoder()
         return try decoder.decode([Driver].self, from: data)
     }

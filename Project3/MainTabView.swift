@@ -22,6 +22,10 @@ struct MainTabView: View {
                     Label("Drivers", systemImage: "car.fill")
                 }
             
+            // Adding posting view
+            PostFeedView()
+                .tabItem { Label("Feed", systemImage: "photo.stack") }
+            
             // Passing the shared f1VM into this view
             GameView(f1VM: f1VM)
                 .tabItem {

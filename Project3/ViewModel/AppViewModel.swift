@@ -5,47 +5,49 @@
 //  Created by Anushka R on 3/14/26.
 //
 
-import SwiftUI
+
+import Foundation
+import UIKit
 import Combine
 
+// Managing feed and posts
 class AppViewModel: ObservableObject {
-    // Instantiating the model
+    // referencing AppModel as the data source
     @Published private var model = AppModel()
     
-    // State for showing the modals
+    // UI State vars controlling camera and gallery views
     @Published var isShowingImagePicker = false
     @Published var isShowingCamera = false
     
-    // Connectings posts with view
-    // Not modifying data directly
+    // Read-only posts to View
     var posts: [Post] {
         return model.posts
     }
     
-    // Handling images from Picker
+    // Chosen image used for post
     func addPostFrom(image: UIImage?) {
-        guard let image else { return }
+        guard let image = image else { return }
         
-        // Updates for main thread
         DispatchQueue.main.async {
-            // Creating a new post object
+            // Creating a new post using the UIImage
             let newPost = Post(
-                image: Image(uiImage: image),
+                uiImage: image,
                 description: "New Race Memory",
                 isFavorite: false,
                 author: User.currentUser
             )
-            
-            // New photos appear at the top
+            // Storing new post to model
             self.model.add(post: newPost)
         }
     }
     
-    // Feature to delete user photos
+    // Removing post if user selects it
     func deletePost(post: Post) {
+        // Confirms user deleted posts
         if post.author == User.currentUser {
+            objectWillChange.send()
+            // Removing only the specific post being deleted by user
             model.remove(postID: post.id)
         }
     }
 }
-

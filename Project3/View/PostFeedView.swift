@@ -4,6 +4,7 @@
 //
 //  Created by Anushka R on 3/14/26.
 
+
 import SwiftUI
 
 struct PostFeedView: View {
@@ -14,54 +15,45 @@ struct PostFeedView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Background color
                 Color(.systemGroupedBackground).ignoresSafeArea()
-                // creating list for posts
+                
                 if viewModel.posts.isEmpty {
                     emptyStateView
                 } else {
                     feedList
                 }
             }
-            // page title
             .navigationTitle("My F1")
-            // post features
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 15) {
-                        // Camera button
                         Button { viewModel.isShowingCamera = true } label: {
                             Image(systemName: "camera.fill")
                         }
                         
-                        // Photo library button
                         Button { viewModel.isShowingImagePicker = true } label: {
                             Image(systemName: "photo.on.rectangle.angled")
                         }
                     }
                 }
             }
-            // Slides/ present when true
             .sheet(isPresented: $viewModel.isShowingImagePicker) {
                 ImagePicker(viewModel: viewModel)
             }
-            // initializing photo library and view model
             .sheet(isPresented: $viewModel.isShowingCamera) {
                 CameraPicker(viewModel: viewModel)
             }
         }
     }
     
-    // The main list showing posts
     private var feedList: some View {
         List {
-            ForEach(viewModel.posts, id: \.id) { post in
-                VStack(alignment: .leading, spacing: 10) {
-                    // User title or their "handle"
+            ForEach(viewModel.posts) { post in
+                VStack(alignment: .leading, spacing: 12) {
+                    // Header
                     HStack {
                         Image(systemName: post.author.profileImageName)
-                            .foregroundStyle(.red)
-                            .font(.title3)
+                            .foregroundColor(.red)
                         Text(post.author.name)
                             .font(.headline)
                         Spacer()
@@ -70,25 +62,22 @@ struct PostFeedView: View {
                                 postToDelete = post
                             } label: {
                                 Image(systemName: "trash")
+                                    .foregroundColor(.red)
                             }
                             .buttonStyle(.borderless)
-                            .foregroundStyle(.red)
                             .accessibilityLabel("Delete")
                         }
                     }
                     
-                    // Square crop adjustment
-                    AspectImage(post.image)
+                    // Square crop using AspectImage
+                    AspectImage(Image(uiImage: post.uiImage))
                         .cornerRadius(12)
-                        .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
                     
                     Text(post.description)
                         .font(.body)
-                        .padding(.bottom, 5)
                 }
                 .padding(.vertical, 8)
                 .listRowSeparator(.hidden)
-                // Removing photos feature
                 .swipeActions(edge: .trailing) {
                     if post.author == User.currentUser {
                         Button(role: .destructive) {
@@ -100,7 +89,6 @@ struct PostFeedView: View {
                 }
             }
         }
-        // warning/ notice to confirm before deleting photos
         .listStyle(.plain)
         .alert(item: $postToDelete) { post in
             Alert(
@@ -113,7 +101,7 @@ struct PostFeedView: View {
             )
         }
     }
-    // empty page view before photos are added
+    
     private var emptyStateView: some View {
         VStack(spacing: 20) {
             Image(systemName: "photo.stack")
@@ -128,8 +116,4 @@ struct PostFeedView: View {
                 .padding(.horizontal)
         }
     }
-}
-
-#Preview {
-    PostFeedView()
 }

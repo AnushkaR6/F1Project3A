@@ -12,5 +12,5 @@ struct User: Equatable {
     let profileImageName: String
     
     // Global access to the current user for checking deletion permissions
-    static let currentUser = User(name: "F1 Fan", profileImageName: "person.circle.fill")
+    static let currentUser = User(name: "My F1", profileImageName: "person.circle.fill")
 }

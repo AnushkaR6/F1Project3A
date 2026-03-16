@@ -5,26 +5,35 @@
 //  Created by Anushka R on 3/14/26.
 //
 
+// combination of camera picker code provided in assignment & vibe coding
+
 import SwiftUI
 
+/// Aspect image
+/// Default is a ratio of 1:1 for a square image
 struct AspectImage: View {
-    let image: Image
-    let aspectRatio: CGFloat
-
+    
+    var image: Image
+    var aspect: CGFloat = 1.0
+    
+    init(_ image: Image) {
+        self.image = image
+    }
+    
     var body: some View {
-        GeometryReader { geometry in
-            image
-                .resizable()
-                .scaledToFill()
-                .frame(width: geometry.size.width, height: geometry.size.width / aspectRatio)
-                .clipped()
-        }
-        .aspectRatio(aspectRatio, contentMode: .fit)
+        Rectangle()
+            .aspectRatio(aspect, contentMode: .fit)
+            .overlay {
+                image
+                    .resizable()
+                    .scaledToFill()
+            }
+            .clipped()
     }
 }
 
-// Preview to help you see it in Xcode
-#Preview {
-    AspectImage(image: Image(systemName: "car.fill"), aspectRatio: 1.0)
-        .padding()
+struct AspectImage_Previews: PreviewProvider {
+    static var previews: some View {
+        AspectImage(Image("joe"))
+    }
 }

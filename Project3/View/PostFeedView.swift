@@ -3,54 +3,51 @@
 //  Project3
 //
 //  Created by Anushka R on 3/14/26.
-//
 
 import SwiftUI
 
 struct PostFeedView: View {
-    // Access the logic through the ViewModel (MVVM)
+    // Access the logic with MVVM
     @StateObject private var viewModel = AppViewModel()
+    @State private var postToDelete: Post?
     
     var body: some View {
         NavigationView {
             ZStack {
-                // Background color to make the feed pop
+                // Background color
                 Color(.systemGroupedBackground).ignoresSafeArea()
-                
+                // creating list for posts
                 if viewModel.posts.isEmpty {
                     emptyStateView
                 } else {
                     feedList
                 }
             }
-            .navigationTitle("F1 Feed")
+            // page title
+            .navigationTitle("My F1")
+            // post features
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 15) {
-                        // Button for Camera
+                        // Camera button
                         Button { viewModel.isShowingCamera = true } label: {
                             Image(systemName: "camera.fill")
                         }
                         
-                        // Button for Photo Library
+                        // Photo library button
                         Button { viewModel.isShowingImagePicker = true } label: {
                             Image(systemName: "photo.on.rectangle.angled")
                         }
                     }
                 }
             }
-            // Modally present pickers (Requirement)
+            // Slides/ present when true
             .sheet(isPresented: $viewModel.isShowingImagePicker) {
-                ImagePicker(image: Binding(
-                    get: { nil },
-                    set: { viewModel.addPostFrom(image: $0) }
-                ))
+                ImagePicker(viewModel: viewModel)
             }
+            // initializing photo library and view model
             .sheet(isPresented: $viewModel.isShowingCamera) {
-                CameraPicker(image: Binding(
-                    get: { nil },
-                    set: { viewModel.addPostFrom(image: $0) }
-                ))
+                CameraPicker(viewModel: viewModel)
             }
         }
     }
@@ -58,9 +55,9 @@ struct PostFeedView: View {
     // The main list showing posts
     private var feedList: some View {
         List {
-            ForEach(viewModel.posts) { post in
+            ForEach(viewModel.posts, id: \.id) { post in
                 VStack(alignment: .leading, spacing: 10) {
-                    // User Header
+                    // User title or their "handle"
                     HStack {
                         Image(systemName: post.author.profileImageName)
                             .foregroundStyle(.red)
@@ -68,10 +65,20 @@ struct PostFeedView: View {
                         Text(post.author.name)
                             .font(.headline)
                         Spacer()
+                        if post.author == User.currentUser {
+                            Button {
+                                postToDelete = post
+                            } label: {
+                                Image(systemName: "trash")
+                            }
+                            .buttonStyle(.borderless)
+                            .foregroundStyle(.red)
+                            .accessibilityLabel("Delete")
+                        }
                     }
                     
-                    // Square Crop (Requirement)
-                    AspectImage(image: post.image, aspectRatio: 1.0)
+                    // Square crop adjustment
+                    AspectImage(post.image)
                         .cornerRadius(12)
                         .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
                     
@@ -81,19 +88,32 @@ struct PostFeedView: View {
                 }
                 .padding(.vertical, 8)
                 .listRowSeparator(.hidden)
-                // Remove photos (Requirement - Only user's own photos)
+                // Removing photos feature
                 .swipeActions(edge: .trailing) {
-                    Button(role: .destructive) {
-                        viewModel.deletePost(post: post)
-                    } label: {
-                        Label("Delete", systemImage: "trash")
+                    if post.author == User.currentUser {
+                        Button(role: .destructive) {
+                            postToDelete = post
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
                     }
                 }
             }
         }
+        // warning/ notice to confirm before deleting photos
         .listStyle(.plain)
+        .alert(item: $postToDelete) { post in
+            Alert(
+                title: Text("Delete Photo?"),
+                message: Text("This will remove the photo from your feed."),
+                primaryButton: .destructive(Text("Delete")) {
+                    viewModel.deletePost(post: post)
+                },
+                secondaryButton: .cancel()
+            )
+        }
     }
-    
+    // empty page view before photos are added
     private var emptyStateView: some View {
         VStack(spacing: 20) {
             Image(systemName: "photo.stack")
@@ -111,6 +131,5 @@ struct PostFeedView: View {
 }
 
 #Preview {
-    // To see data in the preview, ensure AppViewModel starts with dummy data or use your preview model
     PostFeedView()
 }

@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+// Setting up custom struct/ array by defining Post var to allow iteration
+// For post structure
 struct Post: Identifiable, Equatable {
     let id = UUID()
     let image: Image

@@ -11,12 +11,12 @@ class AppModel {
     // Private setter ensures only this class can modify the array directly
     private(set) var posts: [Post] = []
     
-    // Requirement: New photos appear at the top
+    // Having new photos be placed at the top
     func add(post: Post) {
         posts.insert(post, at: 0) //
     }
     
-    // Requirement: Ability to remove photos
+    // Removing photos
     func remove(postID: UUID) {
         posts.removeAll { $0.id == postID } //
     }

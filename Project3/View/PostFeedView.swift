@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PostFeedView: View {
     // Access the logic with MVVM
-    @StateObject private var viewModel = AppViewModel()
+    @ObservedObject var viewModel: AppViewModel
     @State private var postToDelete: Post?
     
     var body: some View {

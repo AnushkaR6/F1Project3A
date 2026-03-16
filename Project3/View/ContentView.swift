@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var viewModel = F1ViewModel()
+    @ObservedObject var viewModel: F1ViewModel
     @State private var isAddSheetPresented = false
 
     
@@ -38,9 +38,6 @@ struct ContentView: View {
                 }
                 .sheet(isPresented: $isAddSheetPresented) {
                     addDriverSheet
-                }
-                .task {
-                    await viewModel.loadDrivers()
                 }
             }
         }
@@ -135,5 +132,5 @@ struct ContentView: View {
 
 
 #Preview {
-    ContentView()
+    ContentView(viewModel: F1ViewModel.preview)
 }

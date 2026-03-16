@@ -11,19 +11,20 @@ import SwiftUI
 
 struct MainTabView: View {
     // Shared point for info
-    @StateObject var f1VM = F1ViewModel()
+    @StateObject private var f1VM = F1ViewModel()
+    @StateObject private var appVM = AppViewModel()
 
     var body: some View {
         TabView {
             // Creating collection/list of drivers w/ profile pics
-            ContentView()
+            ContentView(viewModel: f1VM)
                 .tabItem {
                     // Labeling first tab for all drivers
                     Label("Drivers", systemImage: "car.fill")
                 }
             
             // Adding posting view
-            PostFeedView()
+            PostFeedView(viewModel: appVM)
                 .tabItem { Label("Feed", systemImage: "photo.stack") }
             
             // Passing the shared f1VM into this view

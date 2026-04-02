@@ -9,7 +9,7 @@ import Foundation
 
 // Setting up custom struct/ array by defining var to allow iteration and use later
 // Just using the main driverr details I found in the F1 API
-struct Driver: Codable, Identifiable {
+struct Driver: Codable, Identifiable, Equatable {
     // OpenF1 API uses 'driver_number' as a unique ID
     var id: Int { driver_number }
     let driver_number: Int

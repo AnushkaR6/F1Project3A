@@ -8,6 +8,7 @@
 
 import SwiftUI
 import PhotosUI
+import Supabase
 
 #if os(iOS)
 
@@ -47,7 +48,9 @@ struct ImagePicker: UIViewControllerRepresentable {
                 provider.loadObject(ofClass: UIImage.self) { image, _ in
                     
                     // MARK: This is where I send the image from the photo library to the View Model. You should not edit this, instead you should make a ViewModel and a function called "addPostFrom" that works with this.
-                    self.parent.viewModel.addPostFrom(image: image as? UIImage)
+                    Task {
+                        await self.parent.viewModel.addPostFrom(image: image as? UIImage, description: "")
+                    }
                 }
             }
         }
@@ -57,7 +60,11 @@ struct ImagePicker: UIViewControllerRepresentable {
 
 struct ImagePicker_Previews: PreviewProvider {
     static var previews: some View {
-        ImagePicker(viewModel: AppViewModel())
+        let supabase = SupabaseClient(
+            supabaseURL: URL(string: "https://uawlvuoakvdlzwjrzrfn.supabase.co")!,
+            supabaseKey: "sb_publishable_2CWSXyD0xh-yhE4CqkaW9A_NR_RJauc"
+        )
+        ImagePicker(viewModel: AppViewModel(supabase: supabase))
     }
 }
 #endif

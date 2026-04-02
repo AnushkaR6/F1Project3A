@@ -8,6 +8,7 @@
 // combination of camera picker code provided in assignment & vibe coding
 
 import SwiftUI
+import Supabase
 
 #if os(iOS)
 
@@ -41,7 +42,9 @@ struct CameraPicker: UIViewControllerRepresentable {
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
             if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
                 // MARK: This is where I send the image from the photo library to the View Model. You should not edit this, instead you should make a ViewModel and a function called "addPostFrom" that works with this.
-                parent.viewModel.addPostFrom(image: image)
+                Task {
+                    await parent.viewModel.addPostFrom(image: image, description: "")
+                }
             }
             parent.dismiss()
         }
@@ -52,7 +55,11 @@ struct CameraPicker: UIViewControllerRepresentable {
 
 struct CameraPicker_Previews: PreviewProvider {
     static var previews: some View {
-        CameraPicker(viewModel: AppViewModel())
+        let supabase = SupabaseClient(
+            supabaseURL: URL(string: "https://uawlvuoakvdlzwjrzrfn.supabase.co")!,
+            supabaseKey: "sb_publishable_2CWSXyD0xh-yhE4CqkaW9A_NR_RJauc"
+        )
+        CameraPicker(viewModel: AppViewModel(supabase: supabase))
     }
 }
 #endif

@@ -7,8 +7,10 @@
 
 // This view is just for the starting page but the actual "main view" is the MainTabView
 import SwiftUI
+import Supabase
 
 struct ContentView: View {
+    @EnvironmentObject var authViewModel: AuthViewModel
     @ObservedObject var viewModel: F1ViewModel
     @State private var isAddSheetPresented = false
 
@@ -82,6 +84,19 @@ struct ContentView: View {
                         }
                     }
                 }
+                // Inside ContentView.swift
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: {
+                            Task {
+                                await authViewModel.signOut(f1VM: viewModel)
+                            }
+                        }) {
+                            Image(systemName: "rectangle.portrait.and.arrow.right")
+                                .foregroundColor(.red)
+                        }
+                    }
+                }
             }
         }
     }
@@ -132,5 +147,7 @@ struct ContentView: View {
 
 
 #Preview {
-    ContentView(viewModel: F1ViewModel.preview)
+    let mockClient = SupabaseClient(supabaseURL: URL(string: "https://x.co")!, supabaseKey: "key")
+    return ContentView(viewModel: F1ViewModel.preview)
+        .environmentObject(AuthViewModel(client: mockClient))
 }

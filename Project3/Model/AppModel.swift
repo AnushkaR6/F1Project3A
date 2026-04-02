@@ -20,4 +20,8 @@ class AppModel {
     func remove(postID: UUID) {
         posts.removeAll { $0.id == postID } //
     }
+
+    func replacePosts(with posts: [Post]) {
+        self.posts = posts
+    }
 }

@@ -28,7 +28,7 @@ struct PostFeedView: View {
             ZStack {
                 Color(.systemGroupedBackground).ignoresSafeArea()
                 
-                if viewModel.posts.isEmpty {
+                if viewModel.posts.isEmpty && viewModel.pendingPosts.isEmpty {
                     emptyStateView
                 } else {
                     feedList
@@ -65,11 +65,43 @@ struct PostFeedView: View {
             .sheet(isPresented: $viewModel.isShowingCamera) {
                 CameraPicker(viewModel: viewModel)
             }
+            .alert("Post Upload Failed", isPresented: uploadErrorIsPresented) {
+                Button("OK") {
+                    viewModel.errorMessage = nil
+                }
+            } message: {
+                Text(viewModel.errorMessage ?? "")
+            }
         }
     }
     
     private var feedList: some View {
         List {
+            ForEach(viewModel.pendingPosts) { pendingPost in
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Image(systemName: "person.circle.fill")
+                            .foregroundColor(.red)
+                        Text("My F1")
+                            .font(.headline)
+                        Spacer()
+                        Text("Uploading...")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    AspectImage(Image(uiImage: pendingPost.image))
+                        .cornerRadius(12)
+                    
+                    if !pendingPost.description.isEmpty {
+                        Text(pendingPost.description)
+                            .font(.body)
+                    }
+                }
+                .padding(.vertical, 8)
+                .listRowSeparator(.hidden)
+            }
+
             ForEach(viewModel.posts) { post in
                 VStack(alignment: .leading, spacing: 12) {
                     // Header
@@ -120,6 +152,17 @@ struct PostFeedView: View {
             }
         }
         .listStyle(.plain)
+    }
+
+    private var uploadErrorIsPresented: Binding<Bool> {
+        Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { isPresented in
+                if !isPresented {
+                    viewModel.errorMessage = nil
+                }
+            }
+        )
     }
 
     // New sub-view for the comment area

@@ -10,12 +10,21 @@ import UIKit
 import Combine
 import Supabase
 
+struct PendingPost: Identifiable {
+    let id = UUID()
+    let userID: UUID
+    let description: String
+    let image: UIImage
+}
+
 @MainActor
 class AppViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var posts: [Post] = []
+    @Published var pendingPosts: [PendingPost] = []
     @Published var comments: [UUID: [Comment]] = [:] // Key is Post ID
     @Published var isLoading = false
+    @Published var errorMessage: String?
     
     // UI State for Image Picking
     @Published var isShowingImagePicker = false
@@ -50,12 +59,26 @@ class AppViewModel: ObservableObject {
     
     /// Requirement: Scoping Logic - Uploads an image to Storage and links it to the user
     func addPostFrom(image: UIImage?, description: String) async {
-        guard let image = image,
-              let imageData = image.jpegData(compressionQuality: 0.5),
-              let userId = supabase.auth.currentUser?.id else { return }
+        guard let image = image else {
+            errorMessage = "The selected image could not be loaded."
+            return
+        }
+        guard let imageData = image.jpegData(compressionQuality: 0.5) else {
+            errorMessage = "The selected image could not be processed."
+            return
+        }
+        guard let userId = supabase.auth.currentUser?.id else {
+            errorMessage = "You must be signed in to create a post."
+            return
+        }
         
         isLoading = true
-        defer { isLoading = false }
+        let pendingPost = PendingPost(userID: userId, description: description, image: image)
+        pendingPosts.insert(pendingPost, at: 0)
+        defer {
+            isLoading = false
+            pendingPosts.removeAll { $0.id == pendingPost.id }
+        }
         
         let fileName = "\(userId.uuidString)/\(UUID().uuidString).jpg"
         
@@ -89,6 +112,7 @@ class AppViewModel: ObservableObject {
             await fetchPosts()
             
         } catch {
+            errorMessage = "The image was selected, but the post could not be uploaded. Check your Supabase storage bucket and table policies."
             print("Error creating post: \(error)")
         }
     }
@@ -151,6 +175,8 @@ class AppViewModel: ObservableObject {
     
     func clearData() {
         self.posts = []
+        self.pendingPosts = []
         self.comments = [:]
+        self.errorMessage = nil
     }
 }

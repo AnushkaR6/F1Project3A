@@ -123,17 +123,20 @@ struct PostFeedView: View {
                             .buttonStyle(.borderless)
                         }
                     }
-                    
+                    .padding(.horizontal)
+                    .padding(.top, 8)
 //                    AspectImage(Image(uiImage: post.uiImage))
 //                        .cornerRadius(12)
                     AsyncImage(url: URL(string: post.image_url)) { image in
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fill)
+                            .frame(width: UIScreen.main.bounds.width - 32, height: 350)
+                            .clipped()
+                            .cornerRadius(12)
                     } placeholder: {
                         ProgressView() // Shows a spinner while the image downloads
                     }
-                    .frame(height: 300)
                     
                     Text(post.description)
                         .font(.body)
@@ -230,3 +233,4 @@ struct PostFeedView: View {
             }
         }
 }
+

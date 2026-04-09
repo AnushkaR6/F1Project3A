@@ -25,6 +25,7 @@ struct ContentView: View {
                     }
                 }
                 .navigationTitle("F1 Drivers 2026")
+                .navigationSubtitle("Add drivers to your bookmark")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
                         EditButton()

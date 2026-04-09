@@ -112,8 +112,11 @@ class AppViewModel: ObservableObject {
             await fetchPosts()
             
         } catch {
-            errorMessage = "The image was selected, but the post could not be uploaded. Check your Supabase storage bucket and table policies."
-            print("Error creating post: \(error)")
+            // This will print the EXACT error from the server
+            print("--- SUPABASE ERROR DEBUG ---")
+            print(error)
+            // It might say "new row violates row-level security policy"
+            // or "column 'created_at' does not exist"
         }
     }
     
